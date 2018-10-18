@@ -1,0 +1,20 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k+kd}{public} \PYG{k+kd}{class} \PYG{n+nc}{SimpleCallGraph} \PYG{k+kd}{extends} \PYG{n}{JimpleBasedInterproceduralCFG} \PYG{o}{\PYGZob{}}
+	\PYG{k+kd}{private} \PYG{n}{String}\PYG{o}{[]} \PYG{n}{targetClasses} \PYG{o}{=} \PYG{o}{\PYGZob{}}
+	     \PYG{l+s}{\PYGZdq{}eda045f.exercises\PYGZdq{}} \PYG{o}{,}\PYG{l+s}{\PYGZdq{}java.util\PYGZdq{}}
+		\PYG{o}{,}\PYG{l+s}{\PYGZdq{}org.javacc\PYGZdq{}}\PYG{o}{,}\PYG{l+s}{\PYGZdq{}org.apache\PYGZdq{}}
+	\PYG{o}{\PYGZcb{};}
+
+	\PYG{k+kd}{public} \PYG{n+nf}{SimpleCallGraph}\PYG{o}{()} \PYG{o}{\PYGZob{}} \PYG{k+kd}{super}\PYG{o}{(}\PYG{k+kc}{false}\PYG{o}{,} \PYG{k+kc}{false}\PYG{o}{);} \PYG{o}{\PYGZcb{}}
+
+	\PYG{n+nd}{@Override}
+	\PYG{k+kd}{public} \PYG{n}{Collection}\PYG{o}{\PYGZlt{}}\PYG{n}{SootMethod}\PYG{o}{\PYGZgt{}} \PYG{n+nf}{getCalleesOfCallAt}\PYG{o}{(}\PYG{n}{Unit} \PYG{n}{u}\PYG{o}{)} \PYG{o}{\PYGZob{}}
+		\PYG{k}{return} \PYG{k+kd}{super}\PYG{o}{.}\PYG{n+na}{getCalleesOfCallAt}\PYG{o}{(}\PYG{n}{u}\PYG{o}{).}\PYG{n+na}{stream}\PYG{o}{().}\PYG{n+na}{filter}\PYG{o}{(}\PYG{n}{sm} \PYG{o}{\PYGZhy{}\PYGZgt{}} \PYG{o}{\PYGZob{}}
+			\PYG{k}{for}\PYG{o}{(}\PYG{k+kt}{int} \PYG{n}{i} \PYG{o}{=} \PYG{l+m+mi}{0}\PYG{o}{;} \PYG{n}{i} \PYG{o}{!=} \PYG{n}{targetClasses}\PYG{o}{.}\PYG{n+na}{length}\PYG{o}{;} \PYG{o}{++}\PYG{n}{i}\PYG{o}{)}
+				\PYG{k}{if}\PYG{o}{(}\PYG{n}{sm}\PYG{o}{.}\PYG{n+na}{getDeclaringClass}\PYG{o}{().}\PYG{n+na}{getName}\PYG{o}{().}\PYG{n+na}{startsWith}\PYG{o}{(}\PYG{n}{targetClasses}\PYG{o}{[}\PYG{n}{i}\PYG{o}{]))}
+					\PYG{k}{return} \PYG{k+kc}{true}\PYG{o}{;}
+				\PYG{k}{return} \PYG{k+kc}{false}\PYG{o}{;}
+			\PYG{o}{\PYGZcb{}).}\PYG{n+na}{collect}\PYG{o}{(}\PYG{n}{Collectors}\PYG{o}{.}\PYG{n+na}{toList}\PYG{o}{());}
+	\PYG{o}{\PYGZcb{}}
+\PYG{o}{\PYGZcb{}}
+\end{Verbatim}

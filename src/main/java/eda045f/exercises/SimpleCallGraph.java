@@ -13,9 +13,8 @@ public class SimpleCallGraph extends JimpleBasedInterproceduralCFG {
 									  ,"org.javacc"
 									  ,"org.apache"
 									  };
-	
 	public SimpleCallGraph() {
-		super(true,true);
+		super(false,false);
 	}
 
 	@Override

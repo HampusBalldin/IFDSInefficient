@@ -1,0 +1,130 @@
+% !TEX encoding = UTF-8 Unicode
+\documentclass[a4paper]{article}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{textcomp}
+\usepackage{paralist}
+\usepackage{wrapfig}%https://preview.overleaf.com/public/nhgtcfbqhdqd/images/c3261aacf075202acb6214f8591bc9962a3b8c8b.jpeg
+\usepackage{url}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\abs}{\lvert}{\rvert}
+
+\usepackage{paralist}
+\usepackage{amsfonts}
+\usepackage[margin=1in]{geometry}
+\usepackage{blindtext}
+\usepackage{scrextend}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usepackage{dirtree}
+\usepackage{courier}
+\usepackage[T1]{fontenc}     % För svenska bokstäver
+\usepackage[utf8]{inputenc}  % Teckenkodning UTF8
+\usepackage[english, swedish]{babel}  % För svensk avstavning och svenskahttps://preview.overleaf.com/public/nhgtcfbqhdqd/images/c3261aacf075202acb6214f8591bc9962a3b8c8b.jpeghttps://preview.overleaf.com/public/nhgtcfbqhdqd/images/c3261aacf075202acb6214f8591bc9962a3b8c8b.jpeg
+\usepackage{listings}
+\usepackage{color}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage[english]{algorithm2e}
+\usepackage{tikz}
+\usepackage[pdf]{graphviz}
+
+
+
+ 
+\newcommand{\DomRel}[2]{#1\;\underline{\texttt{>>}}\;#2}
+\newcommand{\DomRelStrict}[2]{#1\;\texttt{>>}\;#2}
+                             % rubriker (t ex "Innehållsförteckning")
+\usepackage{fancyvrb}        % För programlistor med tabulatorer
+\fvset{tabsize=4}            % Tabulatorpositioner
+\fvset{fontsize=\small}      % Lagom storlek för programlistor
+
+\usepackage{framed}
+
+\title{Design of IFDS Analysis}
+\author{Hampus Balldin, Emil Hammarström
+}
+
+\newcommand {\cat }{%
+\mathbf%
+}
+\newcommand {\domain } [ 1 ] {%
+\mathrm{dom}(#1)%
+}
+\newcommand {\codomain } [ 1 ] {%
+\mathrm{cod}(#1)%
+}
+\newcommand {\idarrow} [ 1 ] [ ] {%
+\mathbf{1} {#1}%
+}
+% Paket:
+\usepackage{graphicx}         % För att inkludera bilder.
+
+% Kommandon i denna rapport
+\newcommand{\code}[1]{\texttt{#1}} % För programkod i text.
+% *** Slut på tillägg för denna rapport. ***
+
+\newcommand{\NL}[0]{ \hfill\\\noindent }
+\newenvironment{nscenter}
+ {\parskip=0pt\par\nopagebreak\centering}
+ {\par\noindent\ignorespacesafterend}
+ 
+\begin{document}              % Början på dokumentet
+\selectlanguage{english}
+\thispagestyle{empty}
+
+
+\maketitle                    % Skriver ut rubriken som vi
+                              % definierade ovan med \title, \author
+                              % och eventuellt \date
+\pagenumbering{gobble}
+\newpage
+\pagenumbering{arabic}
+\newpage
+\section{Design}
+We have implemented a May analysis in SOOT. The analysis is implemented as a whole-program-analysis transformer. It is based on the IFDS framework; we subclass DefaultJimpleIFDSTabulationProblem.
+
+\paragraph{May Analysis}\NL
+Given that uses of remove or contains on instances of ArrayList or LinkedList are to be considered bad practice, any code that may use that pattern should be flagged (it is a static property, not a dynamic one). Thus we use a May-analysis and not a Must-analysis.
+
+\subsubsection{IFDS}
+\paragraph{Background}\NL
+IFDS computes so called facts associated with each node; the facts at a given node hold only at that node. The transfer functions in IFDS propagates these facts to successor nodes. A fact is thus a property (at a node) and the transfer functions describe what implications between properties hold. A merge in IFDS then corresponds to logical OR. The expressible transfer functions are implications from (NODE, PROPERTY) to (NODE', \{PROPERTY\}); i.e. a single property at a given node can give multiple properties at a successor node. Since we may not combine multiple properties at a node to form new properties, we can only compute problems that fit into a distributive framework. The always true property is denoted \textbf{0}.
+
+\paragraph{Tracking References}\NL
+The property that we use is: $P$ :: Value -> Bool, $P\;v$ = ``Value v is a reference to ArrayList or LinkedList''. 
+\NL\NL
+For example, at a node $n: [v \leftarrow new ArrayList()]$ then \textbf{0} $\implies P\;v$ at $n$. Similarly, at a definition statement, $[x \leftarrow y]$ then $P\;y \implies P\;x$. 
+
+\NL
+Similar tracking is done across procedure calls where implications are performed for the procedure arguments. Similarly, returned references from procedure calls are tracked.
+
+\NL
+At a use of a value $v$ to perform a call to \textbf{contains} or \textbf{remove} s.t. $P\;v$ holds, then we add the value $v$ to a set of found statements.
+
+\paragraph{Limiting size of CallGraph}\NL
+By default, the callgraph includes all methods that could be invoked. This leads to an unreasonably large graph. To limit the propagation to only the packages that we are interested in, we implemented a simple hack as shown below:
+\begin{minted}{java}
+public class SimpleCallGraph extends JimpleBasedInterproceduralCFG {
+	private String[] targetClasses = { 
+	     "eda045f.exercises" ,"java.util"
+		,"org.javacc","org.apache"
+	};
+	
+	public SimpleCallGraph() { super(false, false); }
+	
+	@Override
+	public Collection<SootMethod> getCalleesOfCallAt(Unit u) {
+		return super.getCalleesOfCallAt(u).stream().filter(sm -> {
+			for(int i = 0; i != targetClasses.length; ++i)
+				if(sm.getDeclaringClass().getName().startsWith(targetClasses[i]))
+					return true;
+				return false;
+			}).collect(Collectors.toList());
+	}
+}
+\end{minted}
+
+
+\end{document}
+% Slut på dokumentet

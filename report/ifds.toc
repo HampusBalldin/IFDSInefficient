@@ -1,0 +1,8 @@
+\babel@toc {swedish}{}
+\babel@toc {english}{}
+\contentsline {section}{\numberline {1}Design}{2}
+\contentsline {paragraph}{May Analysis}{2}
+\contentsline {subsubsection}{\numberline {1.0.1}IFDS}{2}
+\contentsline {paragraph}{Background}{2}
+\contentsline {paragraph}{Tracking References}{2}
+\contentsline {paragraph}{Limiting size of CallGraph}{2}
